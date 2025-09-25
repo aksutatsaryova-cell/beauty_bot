@@ -1,12 +1,17 @@
 import os
 import telebot
-
+from flask import Flask, request
 
 TOKEN = os.getenv("TOKEN")
-if not TOKEN:
-    raise ValueError("Токен не найден! Добавьте его в Render как переменную TOKEN.")
+WEBHOOK_HOST = os.getenv("WEBHOOK_HOST") 
 
-bot = telebot.TeleBot(TOKEN)
+if not TOKEN:
+    raise ValueError("❌ Переменная TOKEN не задана в Render!")
+
+if not WEBHOOK_HOST:
+    raise ValueError("❌ Переменная WEBHOOK_HOST не задана в Render!")
+
+bot = telebot.TeleBot(TOKEN, threaded=False)
 
 
 def send_welcome(message):
@@ -290,8 +295,55 @@ def wax_command(message):
                                       
 
 # Запускаем бота
+> Ксения:
+import os
+import telebot
+from flask import Flask, request
+
+# === НАСТРОЙКИ ===
+TOKEN = os.getenv("TOKEN")
+WEBHOOK_HOST = os.getenv("WEBHOOK_HOST")  # Например: https://cosmoksyusha.onrender.com
+
+if not TOKEN:
+    raise ValueError("❌ Переменная TOKEN не задана в Render!")
+
+if not WEBHOOK_HOST:
+    raise ValueError("❌ Переменная WEBHOOK_HOST не задана в Render!")
+
+bot = telebot.TeleBot(TOKEN, threaded=False)
+
+# === ТВОИ КОМАНДЫ ===
+@bot.message_handler(commands=['start'])
+def send_welcome(message):
+    bot.reply_to(message, "🌿 Добро пожаловать! Бот работает 💖")
+
+# Добавь сюда остальные команды (ламинирование, курсы и т.д.)
+
+# === WEBHOOK ===
+app = Flask(__name__)
+
+@app.route(f'/{TOKEN}', methods=['POST'])
+def webhook():
+    if request.headers.get('content-type') == 'application/json':
+        json_string = request.get_data().decode('utf-8')
+        update = telebot.types.Update.de_json(json_string)
+        bot.process_new_updates([update])
+        return ''
+    else:
+        return 'error', 403
+
+@app.route('/')
+def index():
+    return 'Beauty bot is running!'
+
 if __name__ == '__main__':
-    bot.polling(none_stop=True)
+    # Устанавливаем webhook
+    bot.remove_webhook()
+    bot.set_webhook(url=f"{WEBHOOK_HOST}/{TOKEN}")
+    # Запускаем Flask
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
+
 
 
 
