@@ -294,32 +294,7 @@ def wax_command(message):
                                       "Правильный домашний уход и регулярная депиляция подарят вашей коже гладкость, здоровье и красоту🌸")
                                       
 
-# Запускаем бота
-> Ксения:
-import os
-import telebot
-from flask import Flask, request
 
-# === НАСТРОЙКИ ===
-TOKEN = os.getenv("TOKEN")
-WEBHOOK_HOST = os.getenv("WEBHOOK_HOST")  # Например: https://cosmoksyusha.onrender.com
-
-if not TOKEN:
-    raise ValueError("❌ Переменная TOKEN не задана в Render!")
-
-if not WEBHOOK_HOST:
-    raise ValueError("❌ Переменная WEBHOOK_HOST не задана в Render!")
-
-bot = telebot.TeleBot(TOKEN, threaded=False)
-
-# === ТВОИ КОМАНДЫ ===
-@bot.message_handler(commands=['start'])
-def send_welcome(message):
-    bot.reply_to(message, "🌿 Добро пожаловать! Бот работает 💖")
-
-# Добавь сюда остальные команды (ламинирование, курсы и т.д.)
-
-# === WEBHOOK ===
 app = Flask(__name__)
 
 @app.route(f'/{TOKEN}', methods=['POST'])
@@ -343,6 +318,7 @@ if __name__ == '__main__':
     # Запускаем Flask
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
+
 
 
 
